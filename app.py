@@ -8,7 +8,6 @@ Para ejecutarla localmente:
 from __future__ import annotations
 
 import random
-import string
 from dataclasses import dataclass
 
 import streamlit as st
@@ -22,6 +21,21 @@ st.set_page_config(
     page_icon="📖",
     layout="centered",
 )
+
+# ---------------------------------------------------------------------------
+# Estilos personalizados para el tablero
+# ---------------------------------------------------------------------------
+
+_Stylesheet = """
+<style>
+/* Aumenta el tamaño de fuente en las celdas del tablero para mostrar
+   correctamente letras formadas por varios caracteres (digrafos, trigrafos). */
+.stButton > button[data-testid="stBaseButton-secondary"] {
+    font-size: 2.5rem !important;
+}
+</style>
+"""
+st.markdown(_Stylesheet, unsafe_allow_html=True)
 
 # TODO: Lista de palabras inexitentes. Toca actualizar con palabras reales
 # Elegir palabras cortas para que quepan bien en el tablero.
@@ -47,7 +61,7 @@ DEFAULT_WORDS: list[str] = [
 GRID_SIZE = 12
 
 LETTERS = [
-    "A",
+    "a",
     "a̲",
     "ä",
     "b",
@@ -99,6 +113,7 @@ LETTERS = [
     "x",
     "y",
     "z'",
+    "'",  # glottal stop independiente
 ]
 
 
@@ -133,11 +148,50 @@ DIRECTIONS: list[tuple[int, int]] = [
     (-1, -1),  # ↖ diagonal
 ]
 
+# ---------------------------------------------------------------------------
+# Tokenización de palabras en grupos de letras
+# ---------------------------------------------------------------------------
 
-def _fits(grid: list[list[str]], word: str, r: int, c: int, dr: int, dc: int) -> bool:
-    """Verifica que `word` cabe en la posición y dirección indicadas."""
+# Ordena las letras por longitud (mayor a menor) para que los digrafos y
+# trigrafos se emparen antes que sus subpartes.
+_LETTERS_SORTED: list[str] = sorted(LETTERS, key=len, reverse=True)
+
+
+def _word_to_letters(word: str) -> list[str] | None:
+    """Descompone *word* en una lista de letras (digrafos incluidos).
+
+    Devuelve ``None`` si alguna porción no se puede emparejar.
+    El reconocimiento es insensible a mayúsculas/minúsculas: `N` y `n`
+     son equivalentes y siempre devuelven la forma registrada en LETTERS.
+    """
+    tokens: list[str] = []
+    pos = 0
+    while pos < len(word):
+        matched = False
+        for letter in _LETTERS_SORTED:
+            # Compara de forma insensible a mayúsculas/minúsculas.
+            if word[pos : pos + len(letter)].lower() == letter.lower():
+                tokens.append(letter)
+                pos += len(letter)
+                matched = True
+                break
+        if not matched:
+            return None
+    return tokens
+
+
+def _fits(
+    grid: list[list[str]],
+    letters: list[str],
+    r: int,
+    c: int,
+    dr: int,
+    dc: int,
+) -> bool:
+    """Verifica que el *word* (ya tokenizado en letras) cabe en la posición
+    y dirección indicadas."""
     n = len(grid)
-    for i, ch in enumerate(word):
+    for i, ch in enumerate(letters):
         rr, cc = r + dr * i, c + dc * i
         if not (0 <= rr < n and 0 <= cc < n):
             return False
@@ -152,26 +206,30 @@ def generate_grid(
 ) -> tuple[list[list[str]], list[Placement], list[str]]:
     """Intenta colocar cada palabra en una posición/dirección aleatoria.
 
-    Las palabras que no quepan se devuelven en `unplaced` para que la UI
+    Las palabras que no cupieron se devuelven en `unplaced` para que la UI
     las muestre al usuario.
     """
     grid: list[list[str]] = [["" for _ in range(size)] for _ in range(size)]
     placements: list[Placement] = []
     unplaced: list[str] = []
 
-    # Ordena de más larga a más corta para mejorar el encaje.
-    sorted_words = sorted(
-        set(w.strip().upper() for w in words if w.strip()), key=len, reverse=True
-    )
-
-    for word in sorted_words:
-        if not word:
+    # Ordena de más larga a más corta (en *letras*, no en caracteres) para
+    # mejorar el encaje.
+    sorted_words: list[tuple[str, list[str]]] = []
+    for w in words:
+        w_stripped = w.strip()
+        if not w_stripped:
             continue
-        # Filtra letras no soportadas para evitar problemas con el tablero.
-        if any(ch not in LETTERS for ch in word):
-            unplaced.append(word)
+        # Normaliza a minúsculas para emparejar con LETTERS.
+        lowered = w_stripped.lower()
+        letters = _word_to_letters(lowered)
+        if letters is None:
+            unplaced.append(w_stripped)
             continue
+        sorted_words.append((w_stripped, letters))
+    sorted_words.sort(key=lambda t: len(t[1]), reverse=True)
 
+    for original, letters in sorted_words:
         placed = False
         # Mezcla direcciones y posiciones para variedad.
         directions = DIRECTIONS[:]
@@ -183,24 +241,24 @@ def generate_grid(
             if placed:
                 break
             for r, c in positions:
-                if _fits(grid, word, r, c, dr, dc):
+                if _fits(grid, letters, r, c, dr, dc):
                     cells: list[tuple[int, int]] = []
-                    for i, ch in enumerate(word):
+                    for i, ch in enumerate(letters):
                         rr, cc = r + dr * i, c + dc * i
                         grid[rr][cc] = ch
                         cells.append((rr, cc))
-                    placements.append(Placement(word=word, cells=cells))
+                    placements.append(Placement(word=original, cells=cells))
                     placed = True
                     break
 
         if not placed:
-            unplaced.append(word)
+            unplaced.append(original)
 
-    # Rellena los huecos vacíos con letras aleatorias.
+    # Rellena los huecos vacíos con letras aleatorias del inventario.
     for r in range(size):
         for c in range(size):
             if grid[r][c] == "":
-                grid[r][c] = rng.choice(string.ascii_uppercase)
+                grid[r][c] = rng.choice(LETTERS)
 
     return grid, placements, unplaced
 
@@ -272,9 +330,10 @@ def _cells_between(
 def _find_placement(
     cells: list[tuple[int, int]], placements: list[Placement]
 ) -> Placement | None:
-    cell_set = set(cells)
+    """Busca una colocación que ocupe exactamente las mismas celdas."""
+    cell_set = frozenset(cells)
     for p in placements:
-        if set(p.cells) == cell_set:
+        if frozenset(p.cells) == cell_set:
             return p
     return None
 
@@ -398,16 +457,16 @@ for r in range(size):
         is_start = st.session_state.selection_start == (r, c)
 
         label = _cell_label(r, c)
+        button_type = "primary" if (is_selected or is_start) else "secondary"
         if is_found:
-            label = f"✅{label}"
+            label = f"{label}"
+            button_type = "primary"
         elif is_selected or is_start:
             label = f"🔎{label}"
 
-        button_type = "primary" if (is_selected or is_start) else "secondary"
         if cols[c].button(
             label,
             key=f"cell-{r}-{c}",
-            help=_cell_help(r, c),
             use_container_width=True,
             type=button_type,
         ):

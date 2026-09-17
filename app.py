@@ -486,4 +486,5 @@ for i, p in enumerate(placements):
 
 if found_words == {p.word for p in placements} and placements:
     st.balloons()
+    st.toast("🎉 ¡Encontraste todas las palabras!")
     st.success("🎉 ¡Encontraste todas las palabras!")

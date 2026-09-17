@@ -1,0 +1,48 @@
+[theme.light]
+# Rosa Magenta intenso (del título "Uězhi")
+primaryColor="#D63384"
+# Beige crema suave (fondo del libro)
+backgroundColor="#FCF5E6"
+# Blanco puro para contraste en widgets (lana/costura)
+secondaryBackgroundColor="#FFFFFF"
+# Marrón oscuro cálido (mejor que el negro puro para lectura sobre beige)
+textColor="#4A3B32"
+# Azul suave (para enlaces, evoca hilo o cielo)
+linkColor="#0DCAF0"
+
+[theme.light.sidebar]
+backgroundColor="#FFFDF8"
+secondaryBackgroundColor="#F0EBE1"
+
+# Opcional: Redondear bordes para dar un toque más amigable
+#[theme.baseRadius]
+#baseRadius="rem"
+
+# Paleta de gráficos (Chart Categorical Colors) basada en la portada
+[theme.light.chartCategoricalColors]
+chartCategoricalColors="#D63384, #2E7D32, #E8A87C, #0DCAF0, #8B5CF6"
+
+[theme.dark]
+# Mantenemos el rosa característico (o lo hacemos ligeramente más brillante)
+primaryColor="#FF4B8F"
+
+# Fondo principal: Un tono muy oscuro, casi negro pero cálido (como la sombra profunda)
+backgroundColor="#1C1615"
+
+# Fondo secundario: Un gris carbón cálido (para inputs y sidebar)
+secondaryBackgroundColor="#332725"
+
+# Texto claro: Usamos el color crema del modo Light como texto aquí para mantener la calidez
+textColor="#F0EBE1"
+
+# Color de enlaces: Rosa muy pálido que resalta sobre oscuro
+linkColor="#FF8DC9"
+
+[theme.dark.sidebar]
+# Definimos explícitamente para evitar que Streamlit invierta los colores automáticamente
+backgroundColor="#2E2523"
+secondaryBackgroundColor="#403330"
+
+[theme.dark.chartCategoricalColors]
+# Colores vibrantes para gráficos sobre fondo oscuro (basados en la portada pero más brillantes)
+chartCategoricalColors="#FF4B8F, #66BB6A, #FFCC80, #9575CD, #EF5350"

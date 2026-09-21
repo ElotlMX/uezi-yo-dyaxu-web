@@ -28,10 +28,33 @@ st.set_page_config(
 
 _Stylesheet = """
 <style>
-/* Aumenta el tamaño de fuente en las celdas del tablero para mostrar
-   correctamente letras formadas por varios caracteres (digrafos, trigrafos). */
-.stButton > button[data-testid="stBaseButton-secondary"] {
-    font-size: 2.5rem !important;
+/* Keep the game grid compact on narrow touch screens without changing its
+   labels, Unicode characters, or interaction model. */
+.stButton > button[data-testid^=stBaseButton] {
+    font-size: clamp(0.9rem, 2.8vw, 2.5rem) !important;
+    line-height: 1.1;
+    white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+    .block-container {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+
+    [data-testid=stHorizontalBlock] {
+        gap: 0.125rem !important;
+    }
+
+    [data-testid=stHorizontalBlock] > [data-testid=stColumn] {
+        min-width: 0 !important;
+    }
+
+    .stButton > button[data-testid^=stBaseButton] {
+        min-height: 2.2rem;
+        padding: 0.15rem 0 !important;
+        font-size: clamp(0.68rem, 2.9vw, 0.95rem) !important;
+    }
 }
 </style>
 """

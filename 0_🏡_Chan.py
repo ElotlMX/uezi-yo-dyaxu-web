@@ -9,7 +9,7 @@ import streamlit as st
 # ---------------------------------------------------------------------------
 
 st.set_page_config(
-    page_title="Uëzi yo dyaxü",
+    page_title="Uëzi yo dyaxü jñatrjo",
     page_icon="📖",
     layout="centered",
 )
@@ -19,10 +19,10 @@ st.set_page_config(
 # Contenido de la Home
 # ---------------------------------------------------------------------------
 
-st.title("📖 Uëzi yo dyaxü")
+st.title("📖 Uëzi yo dyaxü jñatrjo")
 
 st.markdown("""
-Bienvenido a la plataforma interactiva del libro **"Uëzi yo dyaxü"** para la enseñanza de la lengua mazahua de **Ana Elvia Paulino Escamilla**.
+Bienvenido a la plataforma interactiva del libro **"Uëzi yo dyaxü jñatrjo"** para la enseñanza de la lengua mazahua de **Ana Elvia Paulino Escamilla**.
 
 Este espacio está diseñado para complementar la lectura del libro y ayudar en el aprendizaje de la lengua a través de actividades interactivas.
 """)

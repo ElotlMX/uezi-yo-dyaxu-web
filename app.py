@@ -446,6 +446,20 @@ def _handle_click(r: int, c: int) -> None:
     st.session_state.last_click = None
 
 
+st.subheader("📝 Palabras")
+
+cols = st.columns(3)
+for i, p in enumerate(placements):
+    with cols[i % 3]:
+        mark = "✅" if p.word in found_words else "⬜"
+        st.write(f"{mark} **{p.word}**")
+
+if found_words == {p.word for p in placements} and placements:
+    st.balloons()
+    st.toast("🎉 ¡Encontraste todas las palabras!")
+    st.success("🎉 ¡Encontraste todas las palabras!")
+st.divider()
+
 # Render del tablero como una cuadrícula de botones usando columnas.
 size = len(grid)
 # Cada fila es un bloque vertical; dentro usamos columnas de ancho 1.
@@ -472,19 +486,3 @@ for r in range(size):
         ):
             _handle_click(r, c)
             st.rerun()
-
-st.divider()
-
-# --- Lista de palabras ----------------------------------------------------------
-st.subheader("📝 Palabras")
-
-cols = st.columns(3)
-for i, p in enumerate(placements):
-    with cols[i % 3]:
-        mark = "✅" if p.word in found_words else "⬜"
-        st.write(f"{mark} **{p.word}**")
-
-if found_words == {p.word for p in placements} and placements:
-    st.balloons()
-    st.toast("🎉 ¡Encontraste todas las palabras!")
-    st.success("🎉 ¡Encontraste todas las palabras!")

@@ -1,8 +1,5 @@
 """Sopa de letras (word search) — página interactiva para el libro
 "Uëzi yo dyaxü".
-
-Para ejecutarla localmente:
-    uv run streamlit run app.py
 """
 
 from __future__ import annotations
@@ -11,16 +8,6 @@ import random
 from dataclasses import dataclass
 
 import streamlit as st
-
-# ---------------------------------------------------------------------------
-# Configuración
-# ---------------------------------------------------------------------------
-
-st.set_page_config(
-    page_title="Sopa de letras — Uëzi yo dyaxü",
-    page_icon="📖",
-    layout="centered",
-)
 
 # ---------------------------------------------------------------------------
 # Estilos personalizados para el tablero

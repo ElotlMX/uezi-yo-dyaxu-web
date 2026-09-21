@@ -47,26 +47,94 @@ _Stylesheet = """
 """
 st.markdown(_Stylesheet, unsafe_allow_html=True)
 
-# TODO: Lista de palabras inexitentes. Toca actualizar con palabras reales
-# Elegir palabras cortas para que quepan bien en el tablero.
-DEFAULT_WORDS: list[str] = [
+BASE_WORDS: list[str] = [
     # Partes del día
-    "Xo̲tr'o",
-    "Nrempa",
-    "Nzhää",
-    "Xomö",
-    # Números
-    "Otrjo",
-    "D'aja",
-    "Yeje",
-    "Jñii",
-    "Nziyo",
-    "Ts'ich'a",
-    "Ñantr'o",
-    "Jñincho",
-    "Nzincho",
-    "Dyëch'a",
 ]
+
+# TODO: Actualizar con palabras reales para cada tema
+SUBJECT_WORDS: dict[str, list[str]] = {
+    "Vocales": ["Axoxi", "Lulu", "Otrjo", "E̲jua", "Chju̲u̲", "Äjnä", "Ëdyi"],
+    "Saludos y despedidas": [
+        "Jyasma",
+        "Kjimi",
+        "Maxa",
+        "Xo̲tr'o",
+        "Nrempa",
+        "Nzhää",
+        "Xomö",
+    ],
+    "Numeros": [
+        "Otrjo",
+        "D'aja",
+        "Yeje",
+        "Jñii",
+        "Nziyo",
+        "Ts'ich'a",
+        "Ñantr'o",
+        "Jñincho",
+        "Nzincho",
+        "Dyëch'a",
+    ],
+    "¿Quien soy?": ["Nusts'ko", "Nuts'ke", "Angeze", "Ts'ejma", "Maa", "Maxko", "Maxa"],
+    "Familia": [
+        "Nana",
+        "Ñüü",
+        "Ande",
+        "Nita",
+        "Chi'i",
+        "Ande",
+        "Gande",
+        "Lande",
+        "Xutr'i",
+        "Tara",
+        "Tata",
+        "Süngü",
+        "Nzhoma",
+        "Kjujue",
+    ],
+    "Emociones": ["Pizhi", "Mb'ekue", "üd'ü", "Ts'eje", "Mäjä", "Södyë"],
+    "Colores": [
+        "K'angü",
+        "Potrjü",
+        "Kjoxü",
+        "Mbezhe",
+        "Kjipobü",
+        "Mbaa",
+        "Tr'oxü",
+        "K'axtr'ü",
+    ],
+    "Animales": [
+        "Pjad'ü",
+        "Süü",
+        "B'aga",
+        "Chare",
+        "Dyoo",
+        "Mixi",
+        "Rekua",
+        "Kuchi",
+        "Äjnä",
+        "Ngo̲ñi",
+        "Mbaro",
+        "Nrenchü",
+    ],
+    "Mi casa": [
+        "Trjëdyi",
+        "Xito",
+        "Säb'ä",
+        "Nrajmü",
+        "Mojmü",
+        "Juañi",
+        "Kjünü",
+        "B'ëchedyi",
+        "Manza",
+        "Ximo",
+        "Dyes'e",
+        "B'echje",
+    ],
+}
+
+DEFAULT_SUBJECT = "Numeros"
+DEFAULT_WORDS: list[str] = SUBJECT_WORDS[DEFAULT_SUBJECT]
 
 GRID_SIZE = 12
 
@@ -84,6 +152,7 @@ LETTERS = [
     "ë",
     "g",
     "ch",
+    "h",
     "i",
     "i̲",
     "j",
@@ -123,6 +192,7 @@ LETTERS = [
     "x",
     "y",
     "z'",
+    "z",
     "'",  # glottal stop independiente
 ]
 
@@ -294,6 +364,8 @@ def _new_puzzle(words: list[str], size: int) -> None:
 def _ensure_state() -> None:
     if "grid" not in st.session_state:
         _new_puzzle(DEFAULT_WORDS, GRID_SIZE)
+    if "subject" not in st.session_state:
+        st.session_state.subject = DEFAULT_SUBJECT
 
 
 _ensure_state()
@@ -367,14 +439,28 @@ instructions.write(
 with st.sidebar:
     st.header("⚙️ Configuración")
 
-    custom_words = st.text_area(
-        "Palabras (una por línea)",
-        value="\n".join(DEFAULT_WORDS),
-        height=200,
-        help="Edita la lista para usar tu propio vocabulario.",
+    subject = st.selectbox(
+        "Selecciona un tema",
+        options=list(SUBJECT_WORDS.keys()),
+        index=list(SUBJECT_WORDS.keys()).index(st.session_state.subject),
     )
 
-    if st.button("🔄 Nueva sopa", use_container_width=True):
+    if subject != st.session_state.subject:
+        st.session_state.subject = subject
+        _new_puzzle(SUBJECT_WORDS[subject], GRID_SIZE)
+        st.rerun()
+
+    custom_words = st.text_area(
+        "Palabras (una por línea)",
+        value="\n".join(SUBJECT_WORDS[st.session_state.subject]),
+        height=200,
+        help="Edita la lista para usar tus propias palabras.",
+    )
+    new_soup_button = st.button("Nueva sopa", icon="🔄", use_container_width=True)
+    clean_selection_button = st.button(
+        "Limpiar selección", icon="🧹", use_container_width=True
+    )
+    if new_soup_button:
         words = [w for w in custom_words.splitlines() if w.strip()]
         if not words:
             st.warning("Agrega al menos una palabra.")
@@ -382,8 +468,7 @@ with st.sidebar:
             _new_puzzle(words, GRID_SIZE)
             st.rerun()
 
-    st.divider()
-    if st.button("🧹 Limpiar selección", use_container_width=True):
+    if clean_selection_button:
         st.session_state.selection_start = None
         st.session_state.last_click = None
         st.rerun()
@@ -459,7 +544,7 @@ def _handle_click(r: int, c: int) -> None:
     st.session_state.last_click = None
 
 
-st.subheader("📝 Palabras")
+st.markdown(f"### 📝 Palabras - {st.session_state.subject}")
 
 cols = st.columns(3)
 for i, p in enumerate(placements):

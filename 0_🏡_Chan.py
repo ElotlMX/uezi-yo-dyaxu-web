@@ -1,23 +1,12 @@
 """Página de inicio para el proyecto "Uëzi yo dyaxü"."""
 
-from __future__ import annotations
-
 import streamlit as st
-
-# ---------------------------------------------------------------------------
-# Configuración
-# ---------------------------------------------------------------------------
 
 st.set_page_config(
     page_title="Uëzi yo dyaxü jñatrjo",
     page_icon="📖",
     layout="centered",
 )
-
-
-# ---------------------------------------------------------------------------
-# Contenido de la Home
-# ---------------------------------------------------------------------------
 
 st.title("📖 Uëzi yo dyaxü jñatrjo")
 
@@ -41,6 +30,4 @@ En el menú lateral, encontrarás diferentes secciones. Por ahora, puedes probar
 
 st.info("💡 ¡Utiliza el menú de la izquierda para navegar entre las páginas!")
 
-# Puedes agregar más información aquí, como una descripción del libro,
-# objetivos del proyecto, o enlaces externos.
-st.caption(f"Hecho con :heart: por [Comunidad Elotl](https://elotl.mx)")
+st.caption("Hecho con :heart: por [Comunidad Elotl](https://elotl.mx)")

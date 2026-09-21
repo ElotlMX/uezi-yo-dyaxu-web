@@ -432,7 +432,9 @@ instructions = st.expander("Instrucciones")
 instructions.write(
     """
     - Haz clic en la **primera** y **última** letra de cada palabra
-    - Las palabras pueden ir en horizontal, vertical o en diagonal"""
+    - Las palabras pueden ir en horizontal, vertical o en diagonal
+    - Si encuentras todas hay una **sorpresa** 🤡🎈
+    """
 )
 
 # --- Barra lateral con controles ------------------------------------------------

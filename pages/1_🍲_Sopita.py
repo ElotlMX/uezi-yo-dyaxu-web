@@ -353,11 +353,14 @@ def _find_placement(
 # ---------------------------------------------------------------------------
 
 
-st.title("📖 Sopa de letras")
-st.caption(
-    "Encuentra las palabras escondidas en el tablero. Haz clic en la primera "
-    "y última letra de cada palabra. Las palabras pueden ir en horizontal, "
-    "vertical o en diagonal."
+st.title("🍲 Sopa de letras")
+st.caption("Encuentra las palabras escondidas en el tablero.")
+
+instructions = st.expander("Instrucciones")
+instructions.write(
+    """
+    - Haz clic en la **primera** y **última** letra de cada palabra
+    - Las palabras pueden ir en horizontal, vertical o en diagonal"""
 )
 
 # --- Barra lateral con controles ------------------------------------------------
